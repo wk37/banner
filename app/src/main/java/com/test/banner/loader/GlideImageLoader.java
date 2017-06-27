@@ -1,13 +1,9 @@
 package com.test.banner.loader;
 
 import android.content.Context;
-import android.net.Uri;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
-import com.facebook.drawee.view.SimpleDraweeView;
-import com.test.banner.App;
 import com.youth.banner.loader.ImageLoader;
 
 

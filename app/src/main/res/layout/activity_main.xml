@@ -1,18 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/swipe"
+    <com.youth.banner.Banner xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/banner"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="200dp"
+        app:indicator_drawable_selected="@drawable/selected_radius" />
 
-        <ListView
-            android:id="@+id/list"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:divider="@null"/>
-    </android.support.v4.widget.SwipeRefreshLayout>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="10dp"
+        android:text="设置为 不 循环播放
+最后一页，点击任何区域应 跳转 到 LoginActivity" />
 </LinearLayout>

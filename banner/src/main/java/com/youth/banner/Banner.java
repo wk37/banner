@@ -71,6 +71,8 @@ public class Banner extends FrameLayout implements OnPageChangeListener {
     private OnBannerListener listener;
     private DisplayMetrics dm;
 
+    private boolean isLoopPlay = true;      //  wk  能否循环播放（最后一页 与 第一页互相滑动）
+
     private WeakHandler handler = new WeakHandler();
 
     public Banner(Context context) {
@@ -144,6 +146,9 @@ public class Banner extends FrameLayout implements OnPageChangeListener {
 
     public Banner isAutoPlay(boolean isAutoPlay) {
         this.isAutoPlay = isAutoPlay;
+        if (isAutoPlay){    // 当允许自动轮播时，要允许最后一页与第一页之间的跳转
+            isLoopPlay(true);
+        }
         return this;
     }
 
@@ -334,7 +339,15 @@ public class Banner extends FrameLayout implements OnPageChangeListener {
             return;
         }
         initImages();
-        for (int i = 0; i <= count + 1; i++) {
+        int tempcount;
+
+        if (isLoopPlay) {
+            tempcount = count + 1;
+        } else {
+            tempcount = count - 1;
+        }
+        // youth5201314 是默认 在前后各加了1个 imageView
+        for (int i = 0; i <= tempcount; i++) {
             View imageView = null;
             if (imageLoader != null) {
                 imageView = imageLoader.createImageView(context);
@@ -344,13 +357,18 @@ public class Banner extends FrameLayout implements OnPageChangeListener {
             }
             setScaleType(imageView);
             Object url = null;
-            if (i == 0) {
-                url = imagesUrl.get(count - 1);
-            } else if (i == count + 1) {
-                url = imagesUrl.get(0);
+            if (isLoopPlay) {
+                if (i == 0) {
+                    url = imagesUrl.get(count - 1);
+                } else if (i == count + 1) {
+                    url = imagesUrl.get(0);
+                } else {
+                    url = imagesUrl.get(i - 1);
+                }
             } else {
-                url = imagesUrl.get(i - 1);
+                url = imagesUrl.get(i);
             }
+
             imageViews.add(imageView);
             if (imageLoader != null)
                 imageLoader.displayImage(context, url, imageView);
@@ -425,7 +443,9 @@ public class Banner extends FrameLayout implements OnPageChangeListener {
         }
         viewPager.setAdapter(adapter);
         viewPager.setFocusable(true);
-        viewPager.setCurrentItem(1);
+        if (isLoopPlay) {
+            viewPager.setCurrentItem(1);
+        }
         if (gravity != -1)
             indicator.setGravity(gravity);
         if (isScroll && count > 1) {
@@ -536,6 +556,15 @@ public class Banner extends FrameLayout implements OnPageChangeListener {
 
     }
 
+
+    public Banner isLoopPlay(boolean isLoopPlay) {
+        this.isLoopPlay = isLoopPlay;
+        if (!isLoopPlay) {
+            isAutoPlay(false);
+        }
+        return this;
+    }
+
     @Override
     public void onPageScrollStateChanged(int state) {
         if (mOnPageChangeListener != null) {
@@ -544,17 +573,23 @@ public class Banner extends FrameLayout implements OnPageChangeListener {
         currentItem = viewPager.getCurrentItem();
         switch (state) {
             case 0://No operation
-                if (currentItem == 0) {
-                    viewPager.setCurrentItem(count, false);
-                } else if (currentItem == count + 1) {
-                    viewPager.setCurrentItem(1, false);
+                if (isLoopPlay) {
+                    if (currentItem == 0) {
+                        viewPager.setCurrentItem(count, false);
+                    } else if (currentItem == count + 1) {
+                        viewPager.setCurrentItem(1, false);
+                    }
                 }
                 break;
             case 1://start Sliding
-                if (currentItem == count + 1) {
-                    viewPager.setCurrentItem(1, false);
-                } else if (currentItem == 0) {
-                    viewPager.setCurrentItem(count, false);
+
+                if (isLoopPlay) {
+                    if (currentItem == count + 1) {
+                        viewPager.setCurrentItem(1, false);
+                    } else if (currentItem == 0) {
+                        viewPager.setCurrentItem(count, false);
+                    }
+
                 }
                 break;
             case 2://end Sliding
@@ -581,8 +616,14 @@ public class Banner extends FrameLayout implements OnPageChangeListener {
             indicatorImages.get((position - 1 + count) % count).setImageResource(mIndicatorSelectedResId);
             lastPosition = position;
         }
-        if (position == 0) position = count;
-        if (position > count) position = 1;
+
+        if (isLoopPlay) {
+            if (position == 0) position = count;
+            if (position > count) position = 1;
+        }else {
+            position ++;
+        }
+
         switch (bannerStyle) {
             case BannerConfig.CIRCLE_INDICATOR:
                 break;
